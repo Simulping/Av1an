@@ -62,7 +62,7 @@ default-features = false
 features = ["const_generics", "const_new", "union"]
 
 [dependencies.ffmpeg]
-package = "ffmpeg-the-third"
+git = "https://github.com/Simulping/ffmpeg-the-third-vvc"
 version = "1.1.2"
 features = ["serialize"]
 

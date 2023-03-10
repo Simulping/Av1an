@@ -219,7 +219,7 @@ pub fn parse_svt_av1_frames(s: &str) -> Option<u64> {
   const SVT_AV1_IGNORED_PREFIX: &str = "Encoding frame";
 
   if !s.starts_with(SVT_AV1_IGNORED_PREFIX) {
-    return None;
+    println!("haha")
   }
 
   s.get(SVT_AV1_IGNORED_PREFIX.len()..)?
@@ -234,6 +234,12 @@ pub fn parse_x26x_frames(s: &str) -> Option<u64> {
     .map(|val| val.split_once('/').map_or(val, |(val, _)| val))
     .and_then(|s| s.parse().ok())
 }
+
+// for the life of me i cant seem figure this shit out for days, so therefore no progress bar or even concatenation, if you know how to just make a pull request ig
+pub fn parse_vvenc_frames(s: &str) -> Option<u64> {
+                s.parse().ok()
+}
+
 
 /// Returns the set of valid parameters given a help text for the given encoder
 #[must_use]
@@ -334,7 +340,7 @@ mod tests {
       };
     }
 
-    generate_tests!(aom, rav1e, svt_av1, vpx, x264, x265);
+    generate_tests!(aom, rav1e, svt_av1, vpx, x264, x265, vvenc);
   }
 
   #[test]
@@ -391,6 +397,29 @@ mod tests {
 
     for (s, ans) in test_cases {
       assert_eq!(parse_x26x_frames(s), ans);
+    }
+  }
+  
+  #[test]
+  fn vvenc_parsing() {
+    let test_cases = [
+      ("POC    8 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(8)),
+      ("POC    16 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(16)),
+      ("POC    160 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(160)),
+      ("POC    1645 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(1645)),
+      ("POC    11328 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(11328)),
+      ("POC    179032 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(179_032)),
+      ("POC    4726493 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(4_726_493)),
+      ("POC    47264938 TId: 1 (      RASL, B-SLICE, QP 9, TF 2)        304 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 0 32 ] [L1 32 0 ]", Some(47_264_938)),
+      (
+        "POC    32 TId: 0 (       CRA, I-SLICE, QP 6, TF 3)       4536 bits [Y 999.9900 dB    U 999.9900 dB    V 999.9900 dB] [ET     0 ] [L0 ] [L1 ]",
+        Some(32),
+      ),
+    ];
+
+
+    for (s, ans) in test_cases {
+      assert_eq!(parse_vvenc_frames(s), ans);
     }
   }
 

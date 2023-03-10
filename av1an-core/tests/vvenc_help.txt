@@ -1,0 +1,71 @@
+vvencapp: Fraunhofer VVC Encoder ver. 1.7.0 [Linux][GCC 12.2.1][64 bit][SIMD=AVX2]
+
+#======== General Options ================
+  -h,   --help [0]                   show default help
+        --fullhelp [0]               show full help
+  -v,   --verbosity [verbose]        Specifies the level of the verboseness (0: silent, 1: error, 2: warning, 3: info,
+                                     4: notice, 5: verbose, 6: debug)
+        --version [0]                show version 
+        --additional []              additional options as string (e.g: "bitrate=1000000 passes=1")
+
+#======== Input Options ================
+  -i,   --input []                   original YUV input file name or '-' for reading from stdin
+  -s,   --size [1920x1080]           specify input resolution (WidthxHeight)
+  -c,   --format [yuv420]            set input format (yuv420, yuv420_10, yuv420_10_packed)
+  -r,   --framerate [60]             temporal rate (framerate numerator) e.g. 25,30, 30000, 50,60, 60000 
+        --framescale [1]             temporal scale (framerate denominator) e.g. 1, 1001 
+        --fps [60/1]                 Framerate as int or fraction (num/denom) 
+        --tickspersec [27000000]     Ticks Per Second for dts generation, (1..27000000, -1: ticks per frame=1)
+  -f,   --frames [0]                 max. frames to encode [all]
+  -fs,  --frameskip [0]              Number of frames to skip at start of input YUV [off]
+        --segment [off]              when encoding multiple separate segments, specify segment position to enable segment concatenation (first, mid, last) [off]
+                                     first: first segment           
+                                     mid  : all segments between first and last segment
+                                     last : last segment
+        --y4m [0]                    force y4m input (only needed for input pipe, else enabled by .y4m file extension)
+        --logofile []                set logo overlay filename (json)
+
+#======== Output Options ================
+  -o,   --output []                  Bitstream output file name
+
+#======== Encoder Options ================
+        --preset [medium]            select preset for specific encoding setting (faster, fast, medium, slow, slower)
+  -b,   --bitrate [0]                bitrate for rate control (0: constant-QP encoding without rate control; otherwise
+                                     bits/second (use e.g. 1.5M, 1.5Mbps, 1500k, 1500kbps, 1500000bps, 1500000))
+  -p,   --passes [-1]                number of rate control passes (1,2)
+        --pass [-1]                  rate control pass for two-pass rate control (-1,1,2)
+        --rcstatsfile []             rate control statistics file
+  -q,   --qp [-1]                    quantization parameter, QP (0-63)
+        --qpa [on]                   Enable perceptually motivated QP adaptation, XPSNR based (0:off, 1:on)
+  -t,   --threads [-1]               Number of threads default: [size < 720p: 4, >= 720p: 8]
+  -rt,  --refreshtype [cra]          intra refresh type (idr,cra,idr2,cra_cre - CRA with constrained encoding for RASL
+                                     pictures)
+  -rs,  --refreshsec [1]             Intra period/refresh in seconds
+  -ip,  --intraperiod [0]            Intra period in frames (0: use intra period in seconds (refreshsec), else:
+                                     n*gopsize)
+        --tiles [1x1]                Set number of tile columns and rows
+        --internal-bitdepth [10]     internal bitdepth (8,10)
+  -aud, --accessunitdelimiter [auto] Emit Access Unit Delimiter NALUs  (auto(-1),off(0),on(1); default: auto - only if
+                                     needed by dependent options)
+  -vui, --vuiparameterspresent [auto] 
+                                     Emit VUI information (auto(-1),off(0),on(1); default: auto - only if needed by
+                                     dependent options)
+  -hrd, --hrdparameterspresent [1]   Emit VUI HRD information (0: off, 1: on; default: 1)
+  -dph, --decodedpicturehash [off]   Control generation of decode picture hash SEI messages, (0:off, 1:md5, 2:crc,
+                                     3:checksum)
+
+#======== Profile, Level, Tier ================
+        --profile [auto]             select profile (main_10, main_10_still_picture)
+        --level [auto]               Level limit (1.0, 2.0,2.1, 3.0,3.1, 4.0,4.1, 5.0,5.1,5.2, 6.0,6.1,6.2,6.3, 15.5)
+        --tier [main]                Tier to use for interpretation of level (main or high)
+
+#======== HDR/SDR and Color Options ================
+        --sdr [off]                  set SDR mode + BT.709, BT.2020, BT.470 color space. use: off, sdr|sdr_709,
+                                     sdr_2020, sdr_470bg
+        --hdr [off]                  set HDR mode + BT.709 or BT.2020 color space (+SEI messages for hlg) use: off,
+                                     pq|hdr10, pq_2020|hdr10_2020, hlg, hlg_2020
+
+#======== Tracing ================
+        --tracechannellist [0]       List all available tracing channels
+        --tracerule ['']             Tracing rule (ex: "D_CABAC:poc==8" or "D_REC_CB_LUMA:poc==8")
+        --tracefile ['']             Tracing file

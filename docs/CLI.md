@@ -157,7 +157,7 @@
 		Video encoder to use
 		
 		[default: aom]
-		[possible values: aom, rav1e, vpx, svt-av1, x264, x265]
+		[possible values: aom, rav1e, vpx, svt-av1, x264, x265, vvenc]
 
 -v, --video-params <VIDEO_PARAMS>
 		Parameters for video encoder

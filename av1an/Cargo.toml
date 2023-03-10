@@ -39,8 +39,8 @@ default-features = false
 features = ["git", "build", "rustc", "cargo"]
 
 [dependencies.ffmpeg]
-package = "ffmpeg-the-third"
-version = "1.1.2"
+git = "https://github.com/Simulping/ffmpeg-the-third-vvc"
+version = "1.2.1"
 features = ["serialize"]
 
 [features]

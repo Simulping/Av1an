@@ -58,6 +58,7 @@ impl Scene {
           tag("x265"),
           tag("vpx"),
           tag("svt-av1"),
+          tag("vvenc"),
         )),
         Encoder::from_str,
       ),
