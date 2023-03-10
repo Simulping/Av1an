@@ -186,7 +186,7 @@ dependencies = [
  "atty",
  "av1an-core",
  "clap",
- "ffmpeg-the-third",
+ "ffmpeg",
  "flexi_logger",
  "once_cell",
  "path_abs",
@@ -212,7 +212,7 @@ dependencies = [
  "crossbeam-channel",
  "crossbeam-utils",
  "dashmap",
- "ffmpeg-the-third",
+ "ffmpeg",
  "indicatif",
  "itertools",
  "log",
@@ -596,10 +596,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ffmpeg"
+version = "1.2.1+ffmpeg-6.0.0"
+source = "git+https://github.com/Simulping/ffmpeg-the-third-vvc#12bb641d4793ac730ed305444af2a49a2260e834"
+dependencies = [
+ "bitflags",
+ "ffmpeg-sys-the-third",
+ "libc",
+ "serde",
+]
+
+[[package]]
 name = "ffmpeg-sys-the-third"
-version = "1.0.2+ffmpeg-5.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aba6e39e3bb60cc687e4be01ad5eefa1e42505f0b220c267e0e2c3d83280f642"
+version = "1.1.0+ffmpeg-6.0.0"
+source = "git+https://github.com/Simulping/ffmpeg-the-third-vvc#12bb641d4793ac730ed305444af2a49a2260e834"
 dependencies = [
  "bindgen",
  "cc",
@@ -607,18 +617,6 @@ dependencies = [
  "num_cpus",
  "pkg-config",
  "vcpkg",
-]
-
-[[package]]
-name = "ffmpeg-the-third"
-version = "1.1.2+ffmpeg-5.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad99f870dcc508647be4efc47e8d96b8dd0b92060442afff37a9a2ff7e59160a"
-dependencies = [
- "bitflags",
- "ffmpeg-sys-the-third",
- "libc",
- "serde",
 ]
 
 [[package]]

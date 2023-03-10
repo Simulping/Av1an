@@ -41,27 +41,20 @@ pub fn compose_ffmpeg_pipe<S: Into<String>>(
 
 /// Get frame count using FFmpeg
 pub fn num_frames(source: &Path) -> Result<usize, ffmpeg::Error> {
-    let mut ictx = input(&source)?;
-    let input = ictx
-        .streams()
-        .best(MediaType::Video)
-        .ok_or(StreamNotFound)?;
-    let video_stream_index = input.index();
+  let mut ictx = input(&source)?;
+  let input = ictx
+    .streams()
+    .best(MediaType::Video)
+    .ok_or(StreamNotFound)?;
+  let video_stream_index = input.index();
 
-    let num_frames = ictx
-        .packets()
-        .filter(|(stream, _)| stream.index() == video_stream_index)
-        .count();
-
-    if num_frames > 0 {
-        println!("Found {} video frames in {}", num_frames, source.display());
-        Ok(num_frames)
-    } else {
-        println!("Failed to find any video frames in {}", source.display());
-        Err(StreamNotFound)
-    }
+  Ok(
+    ictx
+      .packets()
+      .filter(|(stream, _)| stream.index() == video_stream_index)
+      .count(),
+  )
 }
-
 
 pub fn frame_rate(source: &Path) -> Result<f64, ffmpeg::Error> {
   let ictx = input(&source)?;

@@ -219,7 +219,7 @@ pub fn parse_svt_av1_frames(s: &str) -> Option<u64> {
   const SVT_AV1_IGNORED_PREFIX: &str = "Encoding frame";
 
   if !s.starts_with(SVT_AV1_IGNORED_PREFIX) {
-    println!("haha")
+    return None;
   }
 
   s.get(SVT_AV1_IGNORED_PREFIX.len()..)?
