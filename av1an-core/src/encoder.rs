@@ -30,6 +30,7 @@ pub enum Encoder {
   svt_av1,
   x264,
   x265,
+  vvenc,
 }
 
 pub(crate) fn parse_svt_av1_version(version: &[u8]) -> Option<(u32, u32, u32)> {
@@ -152,6 +153,12 @@ impl Encoder {
         into_array!["-", "-o", output]
       )
       .collect(),
+      Self::vvenc => chain!(
+        into_array!["vvencapp", "--input", "-", "--y4m", "--frames", frame_count.to_string()],
+        params,
+        into_array!["-o", output]      
+      )
+      .collect()
     }
   }
 
@@ -236,6 +243,12 @@ impl Encoder {
           "-o",
           NULL
         ]
+      )
+      .collect(),
+        Self::vvenc => chain!(
+        into_array!["vvencapp", "--input", "-", "--y4m", "--verbosity", "4", "--passes=2", "--pass=1", "--frames", frame_count.to_string()],
+        params,
+        into_array![format!("--rcstatsfile={fpf}.json"), "-o", NULL, "-"],
       )
       .collect(),
     }
@@ -335,6 +348,12 @@ impl Encoder {
           "-o",
           output
         ]
+      )
+      .collect(),
+      Self::vvenc => chain!(
+        into_array!["vvencapp", "--input", "-", "--y4m", "--verbosity", "4", "--passes=2", "--pass=2", "--frames", frame_count.to_string()],
+        params,
+        into_array![format!("--rcstatsfile={fpf}.json"), "-o", NULL, "-"],
       )
       .collect(),
     }
@@ -447,6 +466,7 @@ impl Encoder {
         "--level-idc",
         "5.0"
       ],
+      Encoder::vvenc => into_vec!["--preset", "medium", "--qp", "21", "--qpa", "on", "--tiles", "1x1"],
     }
   }
 
@@ -465,6 +485,7 @@ impl Encoder {
       Self::rav1e => (50, 140),
       Self::svt_av1 => (15, 50),
       Self::x264 | Self::x265 => (15, 35),
+      Self::vvenc => (15, 35)
     }
   }
 
@@ -477,6 +498,7 @@ impl Encoder {
       Self::svt_av1 => ["SvtAv1EncApp", "--help"],
       Self::x264 => ["x264", "--fullhelp"],
       Self::x265 => ["x265", "--fullhelp"],
+      Self::vvenc => ["vvencapp", "--fullhelp"],
     }
   }
 
@@ -489,16 +511,18 @@ impl Encoder {
       Self::svt_av1 => "SvtAv1EncApp",
       Self::x264 => "x264",
       Self::x265 => "x265",
+      Self::vvenc => "vvencapp",
     }
   }
 
-  /// Get the name of the video format associated with the encoder
+ /// Get the name of the video format associated with the encoder
   pub const fn format(self) -> &'static str {
     match self {
       Self::aom | Self::rav1e | Self::svt_av1 => "av1",
       Self::vpx => "vpx",
       Self::x264 => "h264",
       Self::x265 => "h265",
+      Self::vvenc => "h266",
     }
   }
 
@@ -507,6 +531,7 @@ impl Encoder {
     match &self {
       Self::aom | Self::rav1e | Self::vpx | Self::svt_av1 => "ivf",
       Self::x264 | Self::x265 => "mkv",
+      Self::vvenc => "266",
     }
   }
 
@@ -517,13 +542,14 @@ impl Encoder {
       Self::rav1e => |p| p == "--quantizer",
       Self::svt_av1 => |p| matches!(p, "--qp" | "-q" | "--crf"),
       Self::x264 | Self::x265 => |p| p == "--crf",
+      Self::vvenc => |p| p == "--qp",
     }
   }
 
   fn replace_q(self, index: usize, q: usize) -> (usize, String) {
     match self {
       Self::aom | Self::vpx => (index, format!("--cq-level={q}")),
-      Self::rav1e | Self::svt_av1 | Self::x265 | Self::x264 => (index + 1, q.to_string()),
+      Self::rav1e | Self::svt_av1 | Self::x265 | Self::x264 | Self::vvenc => (index + 1, q.to_string()),
     }
   }
 
@@ -540,6 +566,10 @@ impl Encoder {
       Self::svt_av1 | Self::x264 | Self::x265 => {
         output.push("--crf".into());
         output.push(q.to_string());
+      }
+      Self::vvenc => {
+      output.push("--qp".into());
+      output.push(q.to_string());
       }
     }
     output
@@ -578,6 +608,7 @@ impl Encoder {
       Self::rav1e => parse_rav1e_frames(line),
       Self::svt_av1 => parse_svt_av1_frames(line),
       Self::x264 | Self::x265 => parse_x26x_frames(line),
+      Self::vvenc => parse_vvenc_frames(line),
     }
   }
 
@@ -771,6 +802,22 @@ impl Encoder {
         "--crf",
         q.to_string(),
       ],
+      Self::vvenc => inplace_vec![
+        "vvencapp",
+        "--input",
+        "-",
+        "--y4m",
+        "--verbosity",
+        "0",
+        "--threads",
+        threads.to_string(),
+        "--preset",
+        "fast",
+        "--qpa",
+        "on",
+        "--qp",
+        q.to_string(),
+      ],
     }
   }
 
@@ -806,6 +853,20 @@ impl Encoder {
         "--no-progress",
         "--y4m",
         "--crf",
+        q.to_string(),
+      ],
+      Self::vvenc => inplace_vec![
+        "vvencapp",
+        "--input",
+        "-",
+        "--y4m",
+        "--verbosity",
+        "0",
+        "--preset",
+        "medium",
+        "--qpa",
+        "on",
+        "--qp",
         q.to_string(),
       ],
     }
@@ -875,7 +936,7 @@ impl Encoder {
 
     let output: Vec<Cow<str>> = match self {
       Self::svt_av1 => chain!(params, into_array!["-b", probe_path]).collect(),
-      Self::aom | Self::rav1e | Self::vpx | Self::x264 | Self::x265 => {
+      Self::aom | Self::rav1e | Self::vpx | Self::x264 | Self::x265 | Self::vvenc => {
         chain!(params, into_array!["-o", probe_path, "-"]).collect()
       }
     };
@@ -893,7 +954,7 @@ impl Encoder {
         }
       };
     }
-    impl_this_function!(x264, x265, vpx, aom, rav1e, svt_av1)
+    impl_this_function!(x264, x265, vpx, aom, rav1e, svt_av1, vvenc)
   }
 }
 
@@ -956,6 +1017,12 @@ create_get_format_bit_depth_function!(
 );
 create_get_format_bit_depth_function!(
   svt_av1,
+   8: [YUV420P],
+  10: [YUV420P10LE],
+  12: []
+);
+create_get_format_bit_depth_function!(
+  vvenc,
    8: [YUV420P],
   10: [YUV420P10LE],
   12: []

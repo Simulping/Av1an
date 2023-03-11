@@ -340,7 +340,7 @@ pub fn determine_workers(encoder: Encoder) -> u64 {
         (cpu as f64 / 3.0).round() as u64,
         (ram_gb as f64 / 1.5).round() as u64,
       ),
-      Encoder::svt_av1 | Encoder::x264 | Encoder::x265 => std::cmp::min(cpu, ram_gb) / 8,
+      Encoder::svt_av1 | Encoder::x264 | Encoder::x265 | Encoder::vvenc => std::cmp::min(cpu, ram_gb) / 8,
     },
     1,
   )
